@@ -15,7 +15,11 @@ import Image from '@tiptap/extension-image'
 import Toolbar from './Toolbar'
 import html2pdf from 'html2pdf.js'
 import { saveAs } from 'file-saver'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import useThemeStore from '../store/themeStore'
+import Document from '@tiptap/extension-document'
+import Superscript from '@tiptap/extension-superscript'
+import Subscript from '@tiptap/extension-subscript'
 
 export default function Editor({ 
   documentId, 
@@ -24,9 +28,29 @@ export default function Editor({
   saving,
   lastSaved
 }) {
+  const { isDarkMode } = useThemeStore();
   const [pages, setPages] = useState([1]);
   const editorRef = useRef(null);
+  const pageRefs = useRef([]);
   
+  // A4 page dimensions (96 DPI)
+  const PAGE_HEIGHT = 1056; // 11 inches
+  const PAGE_WIDTH = 816;  // 8.5 inches
+  const PAGE_PADDING = 96; // 1 inch margins
+  const CONTENT_HEIGHT = PAGE_HEIGHT - (PAGE_PADDING * 2);
+
+  const updatePages = () => {
+    if (!editorRef.current) return;
+
+    const content = editorRef.current;
+    const contentHeight = content.scrollHeight;
+    const numberOfPages = Math.max(1, Math.ceil(contentHeight / CONTENT_HEIGHT));
+    
+    if (numberOfPages !== pages.length) {
+      setPages(Array.from({ length: numberOfPages }, (_, i) => i + 1));
+    }
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -74,6 +98,9 @@ export default function Editor({
       }),
       TextStyle.configure({
         types: ['textStyle'],
+        HTMLAttributes: {
+          class: 'text-style',
+        },
         defaultFontSize: '12pt'
       }),
       Color,
@@ -82,6 +109,8 @@ export default function Editor({
       }),
       Table.configure({
         resizable: true,
+        lastColumnResizable: true,
+        cellMinWidth: 100,
         HTMLAttributes: {
           class: 'border-collapse table-auto w-full',
         },
@@ -89,12 +118,12 @@ export default function Editor({
       TableRow,
       TableCell.configure({
         HTMLAttributes: {
-          class: 'border border-gray-300 p-2',
+          class: 'border border-gray-300 p-2 relative',
         },
       }),
       TableHeader.configure({
         HTMLAttributes: {
-          class: 'border border-gray-300 p-2 bg-gray-100',
+          class: 'border border-gray-300 p-2 bg-gray-100 font-bold relative',
         },
       }),
       Image.configure({
@@ -104,61 +133,156 @@ export default function Editor({
           class: 'max-w-full h-auto',
         },
       }),
+      Document.extend({
+        addOptions() {
+          return {
+            ...this.parent?.(),
+            pageBreak: true,
+          }
+        },
+        addGlobalAttributes() {
+          return [
+            {
+              types: ['textStyle'],
+              attributes: {
+                fontSize: {
+                  default: '12pt',
+                  parseHTML: element => element.style.fontSize,
+                  renderHTML: attributes => {
+                    if (!attributes.fontSize) return {}
+                    return {
+                      style: `font-size: ${attributes.fontSize}`
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }),
+      Superscript,
+      Subscript,
     ],
     content: initialContent,
     editorProps: {
       attributes: {
-        class: 'prose max-w-none focus:outline-none prose-headings:margin-top-0 prose-p:margin-top-0',
-        style: 'font-family: "Times New Roman", Times, serif;'
+        class: 'prose max-w-none focus:outline-none',
+        style: 'min-height: 100%',
       },
     },
     onUpdate: ({ editor }) => {
       if (onSave) {
         onSave(editor.getHTML());
       }
+      updatePages();
     },
-  })
+  });
 
   useEffect(() => {
     if (editor && editorRef.current) {
-      const contentHeight = editorRef.current.offsetHeight;
-      const pageHeight = 1056; // A4 height in pixels
-      const numberOfPages = Math.ceil(contentHeight / pageHeight);
-      setPages(Array.from({ length: numberOfPages }, (_, i) => i + 1));
+      const observer = new ResizeObserver(() => {
+        updatePages();
+      });
+      
+      observer.observe(editorRef.current);
+      
+      return () => {
+        observer.disconnect();
+      };
     }
-  }, [editor?.getHTML()]);
+  }, [editor]);
 
-  if (!editor) return null
+  if (!editor) return null;
 
   const handleExport = async (format) => {
     const content = editor.getHTML();
-    const title = 'document'; // You can pass the document title as a prop if needed
+    const title = 'document';
 
     switch (format) {
       case 'pdf':
         const element = document.createElement('div');
         element.innerHTML = content;
-        const opt = {
-          margin: 1,
-          filename: `${title}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
-        break;
-
-      case 'docx':
-        // For simplicity, we'll export as HTML that can be opened in Word
-        const htmlContent = `
-          <html>
-            <body>
-              ${content}
-            </body>
-          </html>
+        
+        // Update export styles
+        element.style.cssText = `
+          width: ${PAGE_WIDTH}px;
+          padding: ${PAGE_PADDING}px;
+          box-sizing: border-box;
+          font-family: "Times New Roman", Times, serif;
+          line-height: 1.5;
+          background-color: white;
+          color: black;
+          margin: 0 auto;
+          white-space: pre-wrap;       /* Preserve whitespace and wrapping */
+          word-wrap: break-word;       /* Break words only when necessary */
+          overflow-wrap: break-word;   /* Modern version of word-wrap */
+          word-break: keep-all;        /* Prevent word breaking */
+          -webkit-hyphens: none;       /* Disable hyphenation */
+          -ms-hyphens: none;
+          hyphens: none;
         `;
-        const blob = new Blob([htmlContent], { type: 'application/msword' });
-        saveAs(blob, `${title}.doc`);
+        
+        // Update print styles
+        const style = document.createElement('style');
+        style.textContent = `
+          @page {
+            size: A4;
+            margin: 48px;
+          }
+
+          @media print {
+            * {
+              background-color: white !important;
+              color: black !important;
+              -webkit-print-color-adjust: exact;
+              white-space: pre-wrap !important;
+              word-wrap: break-word !important;
+              overflow-wrap: break-word !important;
+              word-break: keep-all !important;
+              -webkit-hyphens: none !important;
+              -ms-hyphens: none !important;
+              hyphens: none !important;
+            }
+
+            /* ... rest of your print styles ... */
+          }
+        `;
+        element.appendChild(style);
+
+        const opt = {
+          margin: [48, 48, 48, 48], // Top, right, bottom, left margins
+          filename: `${title}.pdf`,
+          image: { 
+            type: 'jpeg', 
+            quality: 0.98 
+          },
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            letterRendering: true,
+            scrollX: 0,
+            scrollY: 0,
+            backgroundColor: '#FFF',
+            windowWidth: PAGE_WIDTH + (PAGE_PADDING * 2)
+          },
+          jsPDF: { 
+            unit: 'pt', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true,
+            precision: 16,
+            putOnlyUsedFonts: true
+          }
+        };
+
+        try {
+          await html2pdf()
+            .set(opt)
+            .from(element)
+            .save();
+        } catch (error) {
+          console.error('PDF generation failed:', error);
+        }
         break;
 
       case 'text':
@@ -172,45 +296,27 @@ export default function Editor({
         saveAs(htmlBlob, `${title}.html`);
         break;
 
-      case 'markdown':
-        // You would need a HTML to Markdown converter here
-        // For now, we'll just save the text
-        const markdownBlob = new Blob([editor.getText()], { type: 'text/markdown' });
-        saveAs(markdownBlob, `${title}.md`);
-        break;
-
       default:
         console.error('Unsupported format');
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-100">
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <Toolbar editor={editor} onExport={handleExport} />
+    <div className={`flex flex-col h-[calc(100vh-64px)] ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b sticky top-0 z-10`}>
+        <Toolbar editor={editor} onExport={handleExport} isDarkMode={isDarkMode} />
       </div>
-      <div className="flex-grow overflow-auto px-4 py-8">
-        <div className="max-w-[850px] mx-auto">
-          {pages.map((pageNum) => (
-            <div 
-              key={pageNum}
-              className="bg-white min-h-[1056px] shadow-lg rounded-sm mb-8 relative"
-            >
-              <div className="absolute top-0 right-0 mt-2 mr-2 text-sm text-gray-400">
-                Page {pageNum}
-              </div>
-              {pageNum === 1 ? (
-                <div className="px-12 py-12" ref={editorRef}>
-                  <EditorContent 
-                    editor={editor} 
-                    className="min-h-[1000px] page-break-inside-auto"
-                  />
-                </div>
-              ) : (
-                <div className="px-12 py-12 min-h-[1000px]" />
-              )}
-            </div>
-          ))}
+      <div className="flex-grow overflow-auto">
+        <div 
+          className="mx-auto bg-white shadow-lg"
+          ref={editorRef}
+          style={{
+            width: PAGE_WIDTH,
+            minHeight: PAGE_HEIGHT,
+            padding: PAGE_PADDING,
+          }}
+        >
+          <EditorContent editor={editor} />
         </div>
       </div>
     </div>

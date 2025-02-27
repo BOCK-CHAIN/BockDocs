@@ -82,23 +82,25 @@ const DocumentPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Top Bar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16">
         <div className="max-w-screen-2xl mx-auto px-4">
-          <div className="h-16 flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <input
-              ref={titleInputRef}
-              type="text"
-              value={title}
-              onChange={handleTitleChange}
-              onFocus={handleTitleFocus}
-              className="font-medium text-gray-900 dark:text-white bg-transparent border-none focus:outline-none focus:ring-0 hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
-            />
+          <div className="h-16 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <input
+                ref={titleInputRef}
+                type="text"
+                value={title}
+                onChange={handleTitleChange}
+                onFocus={handleTitleFocus}
+                className="font-medium text-gray-900 dark:text-white bg-transparent border-none focus:outline-none focus:ring-0 hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
+              />
+            </div>
           </div>
         </div>
       </div>

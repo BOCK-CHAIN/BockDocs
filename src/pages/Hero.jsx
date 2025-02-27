@@ -92,9 +92,65 @@ const Hero = () => {
       </section>
 
       {/* Footer */}
-      <footer className={`${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-50 text-gray-600'} py-16`}>
-        <div className="container mx-auto px-6 text-center">
-          <p>© {new Date().getFullYear()} Bock Docs. All rights reserved.</p>
+      <footer className="bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 py-16 border-t border-gray-100 dark:border-gray-700">
+        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Bock Drive</h4>
+            <p className="text-gray-600 dark:text-gray-400">Where Your Data Finds Its Home</p>
+          </div>
+          <div>
+            <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Bock Suite</h4>
+            <ul className="space-y-2">
+              {['Bock Meet', 'Bock Drive', 'Bock Docs'].map((item) => (
+                <li key={item}>
+                  <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Legal</h4>
+            <ul className="space-y-2">
+              {['Privacy Policy', 'Terms of Service', 'Cookies Policy'].map((item) => (
+                <li key={item}>
+                  <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Connect</h4>
+            <div className="space-y-2">
+              {[
+                { name: 'Twitter', url: 'https://x.com/BockBH' },
+                { name: 'Instagram', url: 'https://www.instagram.com/bockbharath' },
+                { name: 'Facebook', url: 'https://www.facebook.com/people/Bock/61555404186214/' },
+                { name: 'LinkedIn', url: 'https://www.linkedin.com/company/bockbharth/' }
+              ].map((social) => (
+                <a 
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  {social.name}
+                </a>
+              ))}
+            </div>
+            <div className="mt-4">
+              <p className="text-gray-600 dark:text-gray-400">Email: info@bock.co.in</p>
+            </div>
+          </div>
+        </div>
+        <div className="container mx-auto px-6 mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-center text-gray-600 dark:text-gray-400">
+            © 2025 Bock Drive. All Rights Reserved.
+          </p>
         </div>
       </footer>
     </div>
