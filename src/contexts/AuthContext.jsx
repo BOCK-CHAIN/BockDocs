@@ -2,7 +2,9 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { 
   getAuth, 
   signInWithPopup, 
-  GoogleAuthProvider, 
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
@@ -13,6 +15,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const auth = getAuth();
   const navigate = useNavigate();
 
@@ -25,6 +28,30 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, [auth]);
 
+  const signUp = async (email, password) => {
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      setUser(result.user);
+      navigate('/dashboard');
+      return result.user;
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
+  const signIn = async (email, password) => {
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      setUser(result.user);
+      navigate('/dashboard');
+      return result.user;
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -33,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       navigate('/dashboard');
       return result.user;
     } catch (error) {
-      console.error('Google Sign-In Error:', error);
+      setError(error.message);
       throw error;
     }
   };
@@ -44,19 +71,24 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       navigate('/');
     } catch (error) {
-      console.error('Logout Error:', error);
+      setError(error.message);
     }
   };
 
   const value = {
     user,
     loading,
+    error,
+    signUp,
+    signIn,
     signInWithGoogle,
     logout
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Or a loading spinner
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>;
   }
 
   return (

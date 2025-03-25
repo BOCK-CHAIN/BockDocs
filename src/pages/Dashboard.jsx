@@ -88,19 +88,19 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16 sm:pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Documents</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">My Documents</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {documents.length} document{documents.length !== 1 ? 's' : ''}
             </p>
           </div>
           <button
             onClick={handleCreateNew}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
           >
             <Plus className="w-5 h-5 mr-2" />
             New Document
@@ -125,7 +125,7 @@ const Dashboard = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           </div>
         ) : filteredDocs.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredDocs.map((doc) => (
               <div
                 key={doc.id}
@@ -134,12 +134,12 @@ const Dashboard = () => {
                 <div className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">
                           {doc.title || 'Untitled Document'}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                           Last modified: {formatLastModified(doc.lastModified)}
                         </p>
                       </div>
@@ -188,9 +188,9 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="text-center py-10">
-            <Folder className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No documents found</h3>
-            <p className="text-gray-500 dark:text-gray-400">
+            <Folder className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">No documents found</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {searchQuery ? 'Try a different search term' : 'Create your first document to get started'}
             </p>
           </div>

@@ -1,8 +1,8 @@
-import { db } from '../firebase';
 import { 
   collection, doc, getDoc, setDoc, 
   query, where, getDocs, deleteDoc, addDoc, orderBy 
 } from 'firebase/firestore';
+import { db } from '../config';
 
 export const saveDocument = async (id, data) => {
   try {

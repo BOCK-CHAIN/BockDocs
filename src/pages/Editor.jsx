@@ -108,36 +108,48 @@ const Editor = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 pt-16">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-full lg:max-w-5xl mx-auto px-4 lg:px-8">
         {/* Title */}
-        <div className="px-8 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="text-2xl font-bold bg-transparent border-none outline-none text-gray-900 dark:text-white w-full"
+            className="text-xl sm:text-2xl font-bold bg-transparent border-none outline-none text-gray-900 dark:text-white w-full"
             placeholder="Untitled Document"
           />
         </div>
 
-        {/* Toolbar */}
-        <EditorToolbar 
-          editor={editor}
-          onExportPDF={() => exportToPdf(editor?.getHTML(), title)}
-          onExportDOCX={() => exportToDocx(editor?.getHTML(), title)}
-        />
+        {/* Toolbar - Make it scrollable on mobile */}
+        <div className="overflow-x-auto">
+          <div className="min-w-max">
+            <EditorToolbar 
+              editor={editor}
+              onExportPDF={() => exportToPdf(editor?.getHTML(), title)}
+              onExportDOCX={() => exportToDocx(editor?.getHTML(), title)}
+            />
+          </div>
+        </div>
 
         {/* Editor Content */}
         <div className="bg-white dark:bg-gray-800 min-h-[calc(100vh-12rem)]">
-          <EditorContent editor={editor} />
+          <div className="max-w-full overflow-x-auto">
+            <EditorContent 
+              editor={editor} 
+              className="prose dark:prose-invert max-w-none focus:outline-none min-h-[500px] px-4 sm:px-6 lg:px-8 py-4"
+            />
+          </div>
         </div>
 
         {/* Status Bar */}
-        <EditorStatusBar
-          wordCount={editor?.storage?.characterCount?.words() || 0}
-          saving={saving}
-          lastSaved={lastSaved}
-        />
+        <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+          <EditorStatusBar
+            wordCount={editor?.storage?.characterCount?.words() || 0}
+            saving={saving}
+            lastSaved={lastSaved}
+            className="px-4 sm:px-6 lg:px-8 py-2 text-sm"
+          />
+        </div>
       </div>
     </div>
   );
