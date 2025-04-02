@@ -132,7 +132,7 @@ const Hero = () => {
                   { icon: FaInstagram, url: 'https://www.instagram.com/bockbharath' },
                   { icon: FaFacebook, url: 'https://www.facebook.com/people/Bock/61555404186214/' },
                   { icon: FaLinkedin, url: 'https://www.linkedin.com/company/bockbharth/' },
-                  { icon: FaYoutube, url: '#' }
+                  { icon: FaYoutube, url: 'https://www.youtube.com/@bockbharath' }
                 ].map((social) => (
                   <a 
                     key={social.url}
@@ -152,7 +152,7 @@ const Hero = () => {
           </div>
           <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              © 2025 Bock Drive. All Rights Reserved.
+              © 2025 Bock Docs. All Rights Reserved.
             </p>
           </div>
         </div>

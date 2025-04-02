@@ -25,6 +25,13 @@ const DocumentPage = () => {
           const docData = docSnap.data();
           setDocument({ id: docSnap.id, ...docData });
           setTitle(docData.title || 'Untitled Document');
+        } else {
+          // Set default content if document doesn't exist
+          setDocument({
+            id,
+            content: '<p></p>', // Empty paragraph for cursor position
+            title: 'Untitled Document'
+          });
         }
       } catch (error) {
         console.error('Error fetching document:', error);
@@ -109,7 +116,7 @@ const DocumentPage = () => {
       <div className="h-[calc(100vh-4rem)]">
         <Editor 
           documentId={id} 
-          initialContent={document?.content || '<p>Start typing...</p>'}
+          initialContent={document?.content || '<p></p>'}
           onSave={handleSave}
           saving={saving}
           lastSaved={lastSaved}

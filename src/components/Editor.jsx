@@ -163,11 +163,11 @@ export default function Editor({
       Superscript,
       Subscript,
     ],
-    content: initialContent,
+    content: initialContent || '<p></p>',
+    autofocus: true,
     editorProps: {
       attributes: {
-        class: 'prose max-w-none focus:outline-none',
-        style: 'min-height: 100%',
+        class: 'prose dark:prose-invert max-w-none focus:outline-none min-h-[500px] px-8 py-4',
       },
     },
     onUpdate: ({ editor }) => {
@@ -191,6 +191,12 @@ export default function Editor({
       };
     }
   }, [editor]);
+
+  useEffect(() => {
+    if (editor && initialContent) {
+      editor.commands.setContent(initialContent);
+    }
+  }, [editor, initialContent]);
 
   if (!editor) return null;
 
