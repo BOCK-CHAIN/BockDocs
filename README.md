@@ -22,8 +22,8 @@ A modern document editing and management platform with rich text editing capabil
 
 1. Clone the repository:
    ```
-   git clone https://github.com/BOCK-CHAIN/BockDocs
-   cd bock-docs
+   git clone https://github.com/BOCK-CHAIN/BockDocs.git
+   cd BockDocs
    ```
 
 2. Install dependencies:
@@ -100,8 +100,8 @@ npm -v
 Clone or upload your Vite + React project to the VM, then build it.
 
 ```bash
-git clone https://github.com/BOCK-CHAIN/bock-docs.git
-cd bock-docs
+git clone https://github.com/BOCK-CHAIN/BockDocs.git
+cd BockDocs
 ```
 
 Install dependencies:
