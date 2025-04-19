@@ -100,7 +100,7 @@ npm -v
 Clone or upload your Vite + React project to the VM, then build it.
 
 ```bash
-git clone https://github.com/yourusername/bock-docs.git
+git clone https://github.com/BOCK-CHAIN/bock-docs.git
 cd bock-docs
 ```
 
